@@ -76,8 +76,9 @@ template.innerHTML = `
 `;
 class ProductItem extends HTMLElement {
   static get observedAttributes() {
-    return ["image", "title", "price", "id"];
+    return ["image", "title", "price", "id", "status"];
   }
+
   constructor() {
     super();
     const shadowRoot = this.attachShadow({ mode: "open" });
@@ -101,8 +102,19 @@ class ProductItem extends HTMLElement {
       case "id":
         shadow.querySelector("li>button").addEventListener("click", () => {
           this.updateCart(newVal);
+          window.dispatchEvent(new Event("storage"));
         });
         break;
+      case "status":
+        let button = this.shadowRoot.querySelector("li>button");
+        if (newVal == 0) {
+          button.setAttribute("status", 0);
+          button.innerText = "Add to Cart";
+        } else {
+          button.setAttribute("status", 1);
+          button.innerText = "Remove From Cart";
+          break;
+        }
       default:
     }
   }
@@ -111,24 +123,28 @@ class ProductItem extends HTMLElement {
     let myStorage = window.localStorage;
     let cart = {};
     let button = this.shadowRoot.querySelector("li>button");
-    let status = button.getAttribute("status");
-
-    console.log(status);
-    if (status == 0) {
-      button.setAttribute("status", 1);
-      button.innerText = "Remove From Cart";
-    } else {
-      button.setAttribute("status", 0);
-      button.innerText = "Add to Cart";
-    }
+    let status = this.getAttribute("status");
 
     if (myStorage.getItem("cart") == "") {
+      cart = {};
+    } else {
+      cart = JSON.parse(myStorage.getItem("cart"));
+    }
+    if (status == 0) {
+      this.setAttribute("status", 1);
+      button.innerText = "Remove From Cart";
       cart[id] = "";
       myStorage.setItem("cart", JSON.stringify(cart));
     } else {
-      cart = JSON.parse(myStorage.getItem("cart"));
-      cart[id] = "";
-      myStorage.setItem("cart", JSON.stringify(cart));
+      this.setAttribute("status", 0);
+      button.innerText = "Add to Cart";
+      delete cart[id];
+
+      if (JSON.stringify(cart) === "{}") {
+        myStorage.setItem("cart", "");
+      } else {
+        myStorage.setItem("cart", JSON.stringify(cart));
+      }
     }
   }
 }
