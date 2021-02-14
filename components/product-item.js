@@ -71,7 +71,7 @@ template.innerHTML = `
   <img src="" alt="">
   <p class="title"></p>
   <p class="price"></p>
-  <button >Add to Cart</button>
+  <button onclick="alert('Added to Cart!')">Add to Cart</button>
 </li>
 `;
 class ProductItem extends HTMLElement {
@@ -110,9 +110,11 @@ class ProductItem extends HTMLElement {
         if (newVal == 0) {
           button.setAttribute("status", 0);
           button.innerText = "Add to Cart";
+          button.setAttribute("onclick", "alert('Added to Cart!')");
         } else {
           button.setAttribute("status", 1);
           button.innerText = "Remove From Cart";
+          button.setAttribute("onclick", "alert('Removed from Cart')");
           break;
         }
       default:
