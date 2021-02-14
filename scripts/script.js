@@ -3,6 +3,7 @@
 window.addEventListener("DOMContentLoaded", async () => {
   let myStorage = window.localStorage;
   let productList = document.getElementById("product-list");
+  let cartCount = document.getElementById("cart-count");
 
   if (myStorage.getItem("data") == null) {
     fetch("https://fakestoreapi.com/products")
@@ -12,6 +13,9 @@ window.addEventListener("DOMContentLoaded", async () => {
         myStorage.setItem("data", data);
       });
   }
+  if (myStorage.getItem("cart") == null) {
+    myStorage.setItem("cart", []);
+  }
 
   let itemData = JSON.parse(localStorage.getItem("data"));
 
@@ -20,10 +24,15 @@ window.addEventListener("DOMContentLoaded", async () => {
     let productItem = document.createElement("product-item");
 
     productItem.setAttribute("image", item["image"]);
-    console.log(productItem);
     productItem.setAttribute("title", item["title"]);
     productItem.setAttribute("price", item["price"]);
-
+    productItem.setAttribute("id", "item" + index);
     productList.appendChild(productItem);
   }
+
+  window.addEventListener("storage", () => {
+    console.log("storage");
+    let cart = JSON.parse(localStorage.getItem("cart"));
+    cartCount.innerText = Object.keys(cart).length;
+  });
 });

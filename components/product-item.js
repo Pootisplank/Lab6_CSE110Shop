@@ -71,17 +71,18 @@ template.innerHTML = `
   <img src="" alt="">
   <p class="title"></p>
   <p class="price"></p>
-  <button onclick="alert('Added to Cart!')">Add to Cart</button>
+  <button >Add to Cart</button>
 </li>
 `;
 class ProductItem extends HTMLElement {
   static get observedAttributes() {
-    return ["image", "title", "price"];
+    return ["image", "title", "price", "id"];
   }
   constructor() {
     super();
     const shadowRoot = this.attachShadow({ mode: "open" });
     shadowRoot.appendChild(template.content.cloneNode(true));
+    shadowRoot.querySelector("li>button").setAttribute("status", 0);
   }
 
   attributeChangedCallback(attrName, oldVal, newVal) {
@@ -97,8 +98,37 @@ class ProductItem extends HTMLElement {
       case "price":
         shadow.querySelector("p.price").innerText = newVal;
         break;
-
+      case "id":
+        shadow.querySelector("li>button").addEventListener("click", () => {
+          this.updateCart(newVal);
+        });
+        break;
       default:
+    }
+  }
+
+  updateCart(id) {
+    let myStorage = window.localStorage;
+    let cart = {};
+    let button = this.shadowRoot.querySelector("li>button");
+    let status = button.getAttribute("status");
+
+    console.log(status);
+    if (status == 0) {
+      button.setAttribute("status", 1);
+      button.innerText = "Remove From Cart";
+    } else {
+      button.setAttribute("status", 0);
+      button.innerText = "Add to Cart";
+    }
+
+    if (myStorage.getItem("cart") == "") {
+      cart[id] = "";
+      myStorage.setItem("cart", JSON.stringify(cart));
+    } else {
+      cart = JSON.parse(myStorage.getItem("cart"));
+      cart[id] = "";
+      myStorage.setItem("cart", JSON.stringify(cart));
     }
   }
 }
